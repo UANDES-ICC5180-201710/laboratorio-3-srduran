@@ -4,12 +4,18 @@ class CoursesController < ApplicationController
   # GET /courses
   # GET /courses.json
   def index
-    @courses = Course.all
+    @search = params[:search]
+    if @search == "" || @search == nil
+      @courses = Course.all
+    else
+      @courses = Course.where(:title => @search)
+    end
   end
 
   # GET /courses/1
   # GET /courses/1.json
   def show
+
   end
 
   # GET /courses/new
@@ -76,6 +82,6 @@ class CoursesController < ApplicationController
         teacher = nil
       end
 
-      params.require(:course).permit(:title, :code).merge(:teacher => teacher)
+      params.require(:course).permit(:title, :code, :quota).merge(:teacher => teacher)
     end
 end

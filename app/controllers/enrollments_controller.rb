@@ -25,17 +25,22 @@ class EnrollmentsController < ApplicationController
   # POST /enrollments.json
   def create
     @enrollment = Enrollment.new(enrollment_params)
-
-    respond_to do |format|
-      if @enrollment.save
-        format.html { redirect_to @enrollment, notice: 'Enrollment was successfully created.' }
-        format.json { render :show, status: :created, location: @enrollment }
-      else
-        format.html { render :new }
-        format.json { render json: @enrollment.errors, status: :unprocessable_entity }
+    if Enrollment.where("course_id = ?", @enrollment.course.id).size < Course.find(@enrollment.course.id).quota
+      respond_to do |format|
+        if @enrollment.save
+          format.html { redirect_to @enrollment, notice: 'Enrollment was successfully created.' }
+          format.json { render :show, status: :created, location: @enrollment }
+        else
+          format.html { render :new }
+          format.json { render json: @enrollment.errors, status: :unprocessable_entity }
+        end
       end
     end
-  end
+    else
+      flash[:notice] = "se llego al maximo de alumnos para este curso"
+      redirect_to(enrollments_path)
+    end
+
 
   # PATCH/PUT /enrollments/1
   # PATCH/PUT /enrollments/1.json
